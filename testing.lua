@@ -1,4 +1,5 @@
 local nobu = {}
+local Nobu = loadstring(game:HttpGet("https://raw.githubusercontent.com/RealBeemo/ss/main/testing.lua"))()
 
 local v_u_2 = {
     ["Head"] = "Head",
@@ -19,6 +20,32 @@ local v_u_3 = {
 
 local thisScript = game:GetService("ReplicatedStorage").Effects.DevilFruits.Nobu.NobuUtil
 local character = game:GetService("Players").LocalPlayer.Character
+
+local function sendTransformation(player, transformationName)
+    local playerUserId = "Player_" .. player.UserId
+    local transformationUrl = DATABASE_URL .. "/transformations/" .. playerUserId .. ".json"
+    local data = {
+        transformation = transformationName
+    }
+    local jsonData = HttpService:JSONEncode(data)
+
+    local success, response = pcall(function()
+        return request({
+            Url = transformationUrl,
+            Method = "PUT",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = jsonData
+        })
+    end)
+
+    if success and response.StatusCode == 200 then
+        print("Transformation data sent successfully for player:", player.Name)
+    else
+        warn("Error sending transformation data for player:", player.Name, response and response.StatusMessage)
+    end
+end
 
 local function do_poof_efx(position)
     local v5 = thisScript.PoofEffect:Clone()
@@ -113,6 +140,9 @@ function nobu.attach_doll(p10, p11)
             v14.LeftLeg.BrickColor = BrickColor.new("Royal purple")
         end
         v14.Parent = p10
+        
+        local userId = game:GetService("Players").LocalPlayer.UserId
+        sendTransformation(game:GetService("Players").LocalPlayer, "Nobu")
     end
 end
 
