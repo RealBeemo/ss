@@ -147,7 +147,7 @@ function nobu.attach_doll(p10, p11, sendToDB)
 
         if sendToDB then
             local userId = game:GetService("Players").LocalPlayer.UserId
-            sendTransformation(game:GetService("Players").LocalPlayer, "DollParts")
+            sendTransformation(game:GetService("Players").LocalPlayer, "Nobu")
         end
     end
 end
