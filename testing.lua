@@ -106,7 +106,7 @@ end
 
 local v_u_9 = {}
 
-function nobu.attach_doll(p10, p11)
+function nobu.attach_doll(p10, p11, sendToDB)
     if not p10:FindFirstChild("DollParts") then
         if v_u_9[p10] == nil then
             v_u_9[p10] = {}
@@ -144,8 +144,10 @@ function nobu.attach_doll(p10, p11)
         end
         v14.Parent = p10
 
-        local userId = game:GetService("Players").LocalPlayer.UserId
-        sendTransformation(game:GetService("Players").LocalPlayer, "Nobu")
+        if sendToDB then
+            local userId = game:GetService("Players").LocalPlayer.UserId
+            sendTransformation(game:GetService("Players").LocalPlayer, "DollParts")
+        end
     end
 end
 
