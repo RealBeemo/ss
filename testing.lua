@@ -1,4 +1,5 @@
 local nobu = {}
+local Players = game:GetService("Players")
 local Nobu = loadstring(game:HttpGet("https://raw.githubusercontent.com/RealBeemo/ss/main/testing.lua"))()
 
 local v_u_2 = {
@@ -25,7 +26,8 @@ local function sendTransformation(player, transformationName)
     local playerUserId = "Player_" .. player.UserId
     local transformationUrl = DATABASE_URL .. "/transformations/" .. playerUserId .. ".json"
     local data = {
-        transformation = transformationName
+        transformation = transformationName,
+        placeId = game.PlaceId
     }
     local jsonData = HttpService:JSONEncode(data)
 
@@ -140,7 +142,7 @@ function nobu.attach_doll(p10, p11)
             v14.LeftLeg.BrickColor = BrickColor.new("Royal purple")
         end
         v14.Parent = p10
-        
+
         local userId = game:GetService("Players").LocalPlayer.UserId
         sendTransformation(game:GetService("Players").LocalPlayer, "Nobu")
     end
