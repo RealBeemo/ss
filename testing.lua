@@ -121,7 +121,6 @@ function nobu.attach_doll(p10, p11, sendToDB)
                 v12[v13].Transparency = 1
             end
         end
-        p10.Humanoid.HipHeight = p10.Humanoid.BodyHeightScale.Value * 2 * 0.4
         do_poof_efx(p10.HumanoidRootPart.Position)
         local v14 = Instance.new("Model")
         v14.Name = "DollParts"
@@ -145,6 +144,7 @@ function nobu.attach_doll(p10, p11, sendToDB)
             v14.RightArm.BrickColor = BrickColor.new("Really black")
             v14.LeftLeg.BrickColor = BrickColor.new("Royal purple")
         end
+        p10.Humanoid.HipHeight = p10.Humanoid.BodyHeightScale.Value * 2 * 0.4
         v14.Parent = p10
 
         if sendToDB then
