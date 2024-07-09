@@ -1,6 +1,7 @@
 local nobu = {}
 local Players = game:GetService("Players")
 local DATABASE_URL = "https://bmodb-a3698-default-rtdb.firebaseio.com"
+local HttpService = game:GetService("HttpService")
 
 local v_u_2 = {
     ["Head"] = "Head",
