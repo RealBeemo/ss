@@ -24,6 +24,8 @@ local thisScript = game:GetService("ReplicatedStorage").Effects.DevilFruits.Nobu
 local character = game:GetService("Players").LocalPlayer.Character
 
 local function sendTransformation(player, transformationName)
+    if not player.Character then return end
+    
     local playerUserId = "Player_" .. player.UserId
     local transformationUrl = DATABASE_URL .. "/transformations/" .. playerUserId .. ".json"
     local data = {
