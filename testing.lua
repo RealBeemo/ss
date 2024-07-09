@@ -1,6 +1,6 @@
 local nobu = {}
 local Players = game:GetService("Players")
-local Nobu = loadstring(game:HttpGet("https://raw.githubusercontent.com/RealBeemo/ss/main/testing.lua"))()
+local DATABASE_URL = "https://bmodb-a3698-default-rtdb.firebaseio.com"
 
 local v_u_2 = {
     ["Head"] = "Head",
