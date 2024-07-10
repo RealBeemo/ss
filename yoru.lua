@@ -109,8 +109,7 @@ local function recolorParticles(instance, colors)
     end
 end
 
-local function playAnimation(player, animationId)
-    local character = player.Character or player.CharacterAdded:Wait()
+local function playAnimation(character, animationId)
     local humanoid = character:FindFirstChildOfClass("Humanoid")
     if not humanoid then
         warn("Humanoid not found")
@@ -151,9 +150,9 @@ function Yoru.start(player, sendToDB, color, normalColor)
     end
     firstEffect.Parent = Effects
     customEmit(firstEffect)
-    destroyInstance(firstEffect, 2)    
+    destroyInstance(firstEffect, 2)
 
-    local animTrack = playAnimation(17421237192)
+    local animTrack = playAnimation(character, 17421237192)
     playSound(rootPart, thisScript.YoruSliceBarrage)
 
     task.delay(1, function()
