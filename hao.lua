@@ -17,7 +17,7 @@ local function sendTransformation(player, moveName)
     local transformationUrl = DATABASE_URL .. "/moves/" .. playerUserId .. ".json"
     local data = {
         move = moveName,
-        characterPath = player.Character:GetFullName(),
+        characterPath = player:GetFullName(),
         placeId = game.PlaceId
     }
     local jsonData = HttpService:JSONEncode(data)
