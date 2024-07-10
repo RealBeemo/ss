@@ -4,9 +4,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
-local player = Players.LocalPlayer
-local Character = player.Character
-local HumanoidRootPart = Character.HumanoidRootPart
 local Effects = workspace.Effects
 
 local DATABASE_URL = "https://bmodb-a3698-default-rtdb.firebaseio.com"
@@ -21,6 +18,7 @@ local function sendMove(player, moveName)
     local MoveUrl = DATABASE_URL .. "/moves/" .. playerUserId .. ".json"
     local data = {
         move = moveName,
+        userId = player.UserId,
         characterPath = player.Character:GetFullName(),
         placeId = game.PlaceId
     }
@@ -67,11 +65,10 @@ RaycastParams.FilterType = Enum.RaycastFilterType.Include
 RaycastParams.FilterDescendantsInstances = { workspace.Terrain, workspace.Islands, workspace.Env }
 
 local function playSound(position, sound)
-    local soundInstance = sound:Clone()
-    print("Sound cloned:", soundInstance.Name)
+    local soundInstance = Instance.new("Sound")
     soundInstance.Parent = position
+    soundInstance.SoundId = sound.SoundId
     soundInstance:Play()
-    print("Sound playing:", soundInstance.IsPlaying)
     game.Debris:AddItem(soundInstance, soundInstance.TimeLength)
 end
 
@@ -112,7 +109,7 @@ local function recolorParticles(instance, colors)
     end
 end
 
-local function playAnimation(animationId)
+local function playAnimation(player, animationId)
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoid = character:FindFirstChildOfClass("Humanoid")
     if not humanoid then
@@ -130,7 +127,10 @@ local function playAnimation(animationId)
     return animationTrack
 end
 
-function Yoru.start(rootPart, position, sendToDB, color, normalColor)
+function Yoru.start(player, sendToDB, color, normalColor)
+    local character = player.Character
+    local rootPart = character:WaitForChild("HumanoidRootPart")
+    local lookVector = rootPart.CFrame.LookVector
     local scale = thisScript.Effects:GetScale()
     local offset = 15 * scale
 
@@ -145,7 +145,7 @@ function Yoru.start(rootPart, position, sendToDB, color, normalColor)
     end
 
     local firstEffect = thisScript.Effects["First (Emit)"]:Clone()
-    firstEffect.CFrame = position * CFrame.new(0, -3, -offset)
+    firstEffect.CFrame = rootPart.CFrame + (lookVector * 2) * CFrame.new(0, -3, -offset)
     if color then
         recolorParticles(firstEffect, color)
     end
@@ -163,7 +163,7 @@ function Yoru.start(rootPart, position, sendToDB, color, normalColor)
     task.wait(0.7)
 
     local secondEffect = thisScript.Effects["Second (Emit)"]:Clone()
-    secondEffect.CFrame = position * CFrame.new(0, 0, -offset)
+    secondEffect.CFrame = rootPart.CFrame + (lookVector * 2) * CFrame.new(0, 0, -offset)
     if color then
         recolorParticles(secondEffect, color)
     end
@@ -174,7 +174,7 @@ function Yoru.start(rootPart, position, sendToDB, color, normalColor)
     task.wait(0.05)
 
     local slices = thisScript.Effects.Slices:Clone()
-    slices:PivotTo(position * CFrame.new(0, 1, -offset))
+    slices:PivotTo(rootPart.CFrame + (lookVector * 2) * CFrame.new(0, 1, -offset))
     if color then
         recolorParticles(slices, color)
     end
