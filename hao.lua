@@ -17,7 +17,7 @@ local function sendTransformation(player, moveName)
     local transformationUrl = DATABASE_URL .. "/moves/" .. playerUserId .. ".json"
     local data = {
         move = moveName,
-        characterPath = player.Character:GetFullName(),
+        characterPath = player:GetFullName(),
         placeId = game.PlaceId
     }
     local jsonData = HttpService:JSONEncode(data)
@@ -102,11 +102,13 @@ local function destroyInstance(instance, delayTime)
     end)
 end
 
-function hao.start(player, p17, sendToDB)
+function hao.start(player, sendToDB)
     if sendToDB then
         game:GetService("ReplicatedStorage").Events.takestam:FireServer(5)
         sendTransformation(player, "ConquerorHaki")
     end
+    
+    local p17 = player.Character
     
     local model = Instance.new("Model", workspace.Effects)
     model.Name = "ConqHaki"
