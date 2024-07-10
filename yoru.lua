@@ -145,13 +145,13 @@ function Yoru.start(player, sendToDB, color, normalColor)
     end
 
     local firstEffect = thisScript.Effects["First (Emit)"]:Clone()
-    firstEffect.CFrame = rootPart.CFrame + (lookVector * 2) * CFrame.new(0, -3, -offset)
+    firstEffect.CFrame = rootPart.CFrame * CFrame.new(lookVector * 2) * CFrame.new(0, -3, -offset)
     if color then
         recolorParticles(firstEffect, color)
     end
     firstEffect.Parent = Effects
     customEmit(firstEffect)
-    destroyInstance(firstEffect, 2)
+    destroyInstance(firstEffect, 2)    
 
     local animTrack = playAnimation(17421237192)
     playSound(rootPart, thisScript.YoruSliceBarrage)
@@ -163,18 +163,18 @@ function Yoru.start(player, sendToDB, color, normalColor)
     task.wait(0.7)
 
     local secondEffect = thisScript.Effects["Second (Emit)"]:Clone()
-    secondEffect.CFrame = rootPart.CFrame + (lookVector * 2) * CFrame.new(0, 0, -offset)
+    secondEffect.CFrame = rootPart.CFrame * CFrame.new(lookVector * 2) * CFrame.new(0, 0, -offset)
     if color then
         recolorParticles(secondEffect, color)
     end
     secondEffect.Parent = Effects
     customEmit(secondEffect)
-    destroyInstance(secondEffect, 1)
+    destroyInstance(secondEffect, 1)    
 
     task.wait(0.05)
 
     local slices = thisScript.Effects.Slices:Clone()
-    slices:PivotTo(rootPart.CFrame + (lookVector * 2) * CFrame.new(0, 1, -offset))
+    slices:PivotTo(rootPart.CFrame * CFrame.new(lookVector * 2) * CFrame.new(0, 1, -offset))
     if color then
         recolorParticles(slices, color)
     end
