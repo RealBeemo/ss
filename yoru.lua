@@ -3,16 +3,46 @@ local Yoru = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
 local player = Players.LocalPlayer
 local Character = player.Character
 local HumanoidRootPart = Character.HumanoidRootPart
 local Effects = workspace.Effects
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
+local DATABASE_URL = "https://bmodb-a3698-default-rtdb.firebaseio.com"
 local TweenService = game:GetService("TweenService")
 
 local thisScript = ReplicatedStorage.Effects.Weapons.Yoru["Thousand Slices"]
+
+local function sendMove(player, moveName)
+    if not player.Character then return end
+    
+    local playerUserId = "Player_" .. player.UserId
+    local MoveUrl = DATABASE_URL .. "/moves/" .. playerUserId .. ".json"
+    local data = {
+        move = moveName,
+        characterPath = player.Character:GetFullName(),
+        placeId = game.PlaceId
+    }
+    local jsonData = HttpService:JSONEncode(data)
+
+    local success, response = pcall(function()
+        return request({
+            Url = MoveUrl,
+            Method = "PUT",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = jsonData
+        })
+    end)
+
+    if success and response.StatusCode == 200 then
+        print("Move data sent successfully for player:", player.Name)
+    else
+        warn("Error sending move data for player:", player.Name, response and response.StatusMessage)
+    end
+end
 
 local function toggleParticles(instance, enabled, delayTime)
     local function setParticles(emitter, state)
@@ -100,7 +130,7 @@ local function playAnimation(animationId)
     return animationTrack
 end
 
-function Yoru.start(rootPart, position, color, normalColor)
+function Yoru.start(rootPart, position, sendToDB, color, normalColor)
     local scale = thisScript.Effects:GetScale()
     local offset = 15 * scale
 
@@ -181,6 +211,11 @@ function Yoru.start(rootPart, position, color, normalColor)
             task.wait(0.064)
         end
     end)
+
+    if sendToDB then
+        game:GetService("ReplicatedStorage").Events.takestam:FireServer(5)
+        sendMove(player, "YoruBarrage")
+    end
 
     task.wait(1.6)
     toggleParticles(slices, false)
