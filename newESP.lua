@@ -377,6 +377,12 @@ local ESPObjects = {}
 local CustomESPObjects = {}
 
 RunService.RenderStepped:Connect(function()
+    local camera = workspace.CurrentCamera
+    if not camera then
+        warn("Camera not found")
+        return
+    end
+
     -- Update player ESP
     for _, player in pairs(game.Players:GetPlayers()) do
         if not ESPSettings.selfESP and player == game.Players.LocalPlayer then
@@ -387,7 +393,11 @@ RunService.RenderStepped:Connect(function()
             continue
         end
 
-        if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") or not player.Character:FindFirstChild("Humanoid") then
+        local character = player.Character
+        local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+        local humanoid = character and character:FindFirstChild("Humanoid")
+
+        if not rootPart or not humanoid then
             if ESPObjects[player] then
                 ESPObjects[player]:Hide()
             end
@@ -397,6 +407,19 @@ RunService.RenderStepped:Connect(function()
 
         if not ESPObjects[player] then
             ESPObjects[player] = EntityESP.new(player)
+        end
+
+        -- Debugging statements
+        print("Updating ESP for player:", player.Name)
+
+        local rootPartPosition = rootPart.Position
+        local labelPos, visibleOnScreen = worldToViewportPoint(camera, rootPartPosition)
+
+        if not labelPos or not visibleOnScreen then
+            warn("Label position or visibility check failed for player: " .. player.Name)
+            print("rootPartPosition:", rootPartPosition)
+            print("labelPos:", labelPos, "visibleOnScreen:", visibleOnScreen)
+            continue
         end
 
         ESPObjects[player]:Update()
@@ -423,13 +446,15 @@ RunService.RenderStepped:Connect(function()
         end
 
         local position = customObject.position
-        local distance = (position - workspace.CurrentCamera.CFrame.Position).Magnitude
+        local distance = (position - camera.CFrame.Position).Magnitude
         if distance > ESPSettings.maxEspDistance then continue end
 
-        local labelPos, visibleOnScreen = worldToViewportPoint(workspace.CurrentCamera, position)
+        local labelPos, visibleOnScreen = worldToViewportPoint(camera, position)
 
         if not labelPos or not visibleOnScreen then
-            warn("Label position or visibility check failed")
+            warn("Label position or visibility check failed for custom object: " .. customObject.name)
+            print("position:", position)
+            print("labelPos:", labelPos, "visibleOnScreen:", visibleOnScreen)
             continue
         end
 
