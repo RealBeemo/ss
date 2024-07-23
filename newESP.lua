@@ -365,11 +365,54 @@ function ESP:SetFontSize(size)
 end
 
 function ESP:AddCustomObject(name, position, color)
-    if not name or not position then
-        warn("Name or position is missing")
-        return
+    -- Add the new custom object
+    local newObject = {name = name, position = position, color = color}
+    table.insert(ESPSettings.customObjects, newObject)
+end
+
+function ESP:RemoveCustomObject(name)
+    for i, customObject in pairs(ESPSettings.customObjects) do
+        if customObject.name == name then
+            table.remove(ESPSettings.customObjects, i)
+            if CustomESPObjects[name] then
+                CustomESPObjects[name]:Remove()
+                CustomESPObjects[name] = nil
+            end
+            break
+        end
     end
-    table.insert(ESPSettings.customObjects, {name = name, position = position, color = color})
+end
+
+function ESP:UpdateCustomObjects()
+    local camera = workspace.CurrentCamera
+    if not camera then return end
+
+    for _, customObject in pairs(ESPSettings.customObjects) do
+        local position = customObject.position
+        local distance = (position - camera.CFrame.Position).Magnitude
+        if distance > ESPSettings.maxEspDistance then continue end
+
+        local labelPos, visibleOnScreen = worldToViewportPoint(camera, position)
+
+        local espObject = CustomESPObjects[customObject.name]
+        if not espObject then
+            espObject = createDrawing('Text')
+            espObject.Center = true
+            espObject.Outline = true
+            espObject.Font = Drawing.Fonts.UI
+            espObject.Size = ESPSettings.fontSize
+            espObject.Color = customObject.color or ESPSettings.Color
+            CustomESPObjects[customObject.name] = espObject
+        end
+
+        if visibleOnScreen then
+            espObject.Visible = true
+            espObject.Position = Vector2New(labelPos.X, labelPos.Y)
+            espObject.Text = string.format("[%s] [%dm]", customObject.name, mathFloor(distance))
+        else
+            espObject.Visible = false
+        end
+    end
 end
 
 local ESPObjects = {}
@@ -423,47 +466,7 @@ RunService.RenderStepped:Connect(function()
     end
 
     -- Update custom objects ESP
-    for _, customObject in pairs(ESPSettings.customObjects) do
-        local position = customObject.position
-        local distance = (position - camera.CFrame.Position).Magnitude
-        if distance > ESPSettings.maxEspDistance then continue end
-
-        local labelPos, visibleOnScreen = worldToViewportPoint(camera, position)
-
-        local espObject = CustomESPObjects[customObject.name]
-        if not espObject then
-            espObject = createDrawing('Text')
-            espObject.Center = true
-            espObject.Outline = true
-            espObject.Font = Drawing.Fonts.UI
-            espObject.Size = ESPSettings.fontSize
-            espObject.Color = customObject.color or ESPSettings.Color
-            CustomESPObjects[customObject.name] = espObject
-        end
-
-        if visibleOnScreen then
-            espObject.Visible = true
-            espObject.Position = Vector2New(labelPos.X, labelPos.Y)
-            espObject.Text = string.format("[%s] [%dm]", customObject.name, mathFloor(distance))
-        else
-            espObject.Visible = false
-        end
-    end
-
-    -- Cleanup ESP objects for custom objects that no longer exist
-    for name, espObject in pairs(CustomESPObjects) do
-        local exists = false
-        for _, customObject in pairs(ESPSettings.customObjects) do
-            if customObject.name == name then
-                exists = true
-                break
-            end
-        end
-        if not exists then
-            espObject:Remove()
-            CustomESPObjects[name] = nil
-        end
-    end
+    ESP:UpdateCustomObjects()
 end)
 
 return ESP
