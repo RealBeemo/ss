@@ -60,7 +60,7 @@ destroyRP = function(object)
 end
 
 local ESPSettings = {
-    Enabled = false,
+    Enabled = true,
     Players = true,
     Boxes = true,
     Tracers = true,
@@ -415,13 +415,6 @@ RunService.RenderStepped:Connect(function()
         local rootPartPosition = rootPart.Position
         local labelPos, visibleOnScreen = worldToViewportPoint(camera, rootPartPosition)
 
-        if not labelPos or not visibleOnScreen then
-            warn("Label position or visibility check failed for player: " .. player.Name)
-            print("rootPartPosition:", rootPartPosition)
-            print("labelPos:", labelPos, "visibleOnScreen:", visibleOnScreen)
-            continue
-        end
-
         ESPObjects[player]:Update()
     end
 
@@ -450,13 +443,6 @@ RunService.RenderStepped:Connect(function()
         if distance > ESPSettings.maxEspDistance then continue end
 
         local labelPos, visibleOnScreen = worldToViewportPoint(camera, position)
-
-        if not labelPos or not visibleOnScreen then
-            warn("Label position or visibility check failed for custom object: " .. customObject.name)
-            print("position:", position)
-            print("labelPos:", labelPos, "visibleOnScreen:", visibleOnScreen)
-            continue
-        end
 
         local espObject = CustomESPObjects[customObject.name]
         if not espObject then
