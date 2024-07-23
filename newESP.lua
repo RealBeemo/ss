@@ -374,9 +374,10 @@ function ESP:AddCustomObject(name, position, color)
 end
 
 local ESPObjects = {}
+local CustomESPObjects = {}
 
--- Update loop
 RunService.RenderStepped:Connect(function()
+    -- Update player ESP
     for _, player in pairs(game.Players:GetPlayers()) do
         if not ESPSettings.selfESP and player == game.Players.LocalPlayer then
             if ESPObjects[player] then
@@ -409,7 +410,7 @@ RunService.RenderStepped:Connect(function()
         end
     end
 
-    -- Update custom objects
+    -- Update custom objects ESP
     for _, customObject in pairs(ESPSettings.customObjects) do
         if not customObject.name then
             warn("Custom object name is nil, skipping")
@@ -427,7 +428,12 @@ RunService.RenderStepped:Connect(function()
 
         local labelPos, visibleOnScreen = worldToViewportPoint(workspace.CurrentCamera, position)
 
-        local espObject = ESPObjects[customObject.name]
+        if not labelPos or not visibleOnScreen then
+            warn("Label position or visibility check failed")
+            continue
+        end
+
+        local espObject = CustomESPObjects[customObject.name]
         if not espObject then
             espObject = createDrawing('Text')
             espObject.Center = true
@@ -435,7 +441,7 @@ RunService.RenderStepped:Connect(function()
             espObject.Font = Drawing.Fonts.UI
             espObject.Size = ESPSettings.fontSize
             espObject.Color = customObject.color or ESPSettings.Color
-            ESPObjects[customObject.name] = espObject
+            CustomESPObjects[customObject.name] = espObject
         end
 
         if visibleOnScreen then
@@ -444,6 +450,21 @@ RunService.RenderStepped:Connect(function()
             espObject.Text = string.format("[%s] [%dm]", customObject.name, mathFloor(distance))
         else
             espObject.Visible = false
+        end
+    end
+
+    -- Cleanup ESP objects for custom objects that no longer exist
+    for name, espObject in pairs(CustomESPObjects) do
+        local exists = false
+        for _, customObject in pairs(ESPSettings.customObjects) do
+            if customObject.name == name then
+                exists = true
+                break
+            end
+        end
+        if not exists then
+            espObject:Remove()
+            CustomESPObjects[name] = nil
         end
     end
 end)
