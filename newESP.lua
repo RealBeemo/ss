@@ -410,6 +410,16 @@ RunService.RenderStepped:Connect(function()
 
         local labelPos, visibleOnScreen = worldToViewportPoint(workspace.CurrentCamera, position)
 
+        if not customObject.name then
+            warn("Custom object name is nil, skipping")
+            continue
+        end
+
+        if not position then
+            warn("Custom object position is nil, skipping")
+            continue
+        end
+
         local espObject = ESPObjects[customObject.name]
         if not espObject then
             espObject = createDrawing('Text')
