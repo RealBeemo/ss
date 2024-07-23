@@ -60,21 +60,21 @@ destroyRP = function(object)
 end
 
 local ESPSettings = {
-    Enabled = true,
-    Players = true,
-    Boxes = true,
-    Tracers = true,
+    Enabled = false,
+    Players = false,
+    Boxes = false,
+    Tracers = false,
     Color = Color3.fromRGB(255, 255, 255),
     BoxesColor = Color3.fromRGB(255, 255, 255),
     TracersColor = Color3.fromRGB(255, 255, 255),
-    proximityArrows = true,
+    proximityArrows = false,
     maxEspDistance = 1000,
     maxProximityArrowDistance = 500,
     showStamina = false,
     showDFValue = false,
-    showPlayerName = true,
+    showPlayerName = false,
     selfESP = false,
-    fontSize = 16, -- Default font size
+    fontSize = 13, -- Default font size
     customObjects = {} -- Custom objects
 }
 
