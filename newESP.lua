@@ -407,21 +407,21 @@ RunService.RenderStepped:Connect(function()
 
     -- Update custom objects
     for _, customObject in pairs(ESPSettings.customObjects) do
-        local position = customObject.position
-        local distance = (position - workspace.CurrentCamera.CFrame.Position).Magnitude
-        if distance > ESPSettings.maxEspDistance then continue end
-
-        local labelPos, visibleOnScreen = worldToViewportPoint(workspace.CurrentCamera, position)
-
         if not customObject.name then
             warn("Custom object name is nil, skipping")
             continue
         end
 
-        if not position then
+        if not customObject.position then
             warn("Custom object position is nil, skipping")
             continue
         end
+
+        local position = customObject.position
+        local distance = (position - workspace.CurrentCamera.CFrame.Position).Magnitude
+        if distance > ESPSettings.maxEspDistance then continue end
+
+        local labelPos, visibleOnScreen = worldToViewportPoint(workspace.CurrentCamera, position)
 
         local espObject = ESPObjects[customObject.name]
         if not espObject then
