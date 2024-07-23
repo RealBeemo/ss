@@ -358,12 +358,14 @@ end
 function ESP:SetFontSize(size)
     ESPSettings.fontSize = size
     for _, espObject in pairs(ESPObjects or {}) do
-        espObject._label.Size = size
+        if espObject._label then
+            espObject._label.Size = size
+        end
     end
 end
 
-function ESP:AddCustomObject(name, position)
-    table.insert(ESPSettings.customObjects, {name = name, position = position})
+function ESP:AddCustomObject(name, position, color)
+    table.insert(ESPSettings.customObjects, {name = name, position = position, color = color})
 end
 
 local ESPObjects = {}
@@ -427,6 +429,7 @@ RunService.RenderStepped:Connect(function()
             espObject.Outline = true
             espObject.Font = Drawing.Fonts.UI
             espObject.Size = ESPSettings.fontSize
+            espObject.Color = customObject.color or ESPSettings.Color
             ESPObjects[customObject.name] = espObject
         end
 
@@ -434,7 +437,6 @@ RunService.RenderStepped:Connect(function()
             espObject.Visible = true
             espObject.Position = Vector2New(labelPos.X, labelPos.Y)
             espObject.Text = string.format("[%s] [%dm]", customObject.name, mathFloor(distance))
-            espObject.Color = ESPSettings.Color
         else
             espObject.Visible = false
         end
