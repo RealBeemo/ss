@@ -366,6 +366,10 @@ end
 
 function ESP:AddCustomObject(name, position, color)
     print("Adding custom object:", name, position, color)
+    if not name or not position then
+        warn("Name or position is missing")
+        return
+    end
     table.insert(ESPSettings.customObjects, {name = name, position = position, color = color})
 end
 
