@@ -365,6 +365,7 @@ function ESP:SetFontSize(size)
 end
 
 function ESP:AddCustomObject(name, position, color)
+    print("Adding custom object:", name, position, color)
     table.insert(ESPSettings.customObjects, {name = name, position = position, color = color})
 end
 
