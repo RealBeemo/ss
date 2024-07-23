@@ -365,7 +365,6 @@ function ESP:SetFontSize(size)
 end
 
 function ESP:AddCustomObject(name, position, color)
-    print("Adding custom object:", name, position, color)
     if not name or not position then
         warn("Name or position is missing")
         return
@@ -409,9 +408,6 @@ RunService.RenderStepped:Connect(function()
             ESPObjects[player] = EntityESP.new(player)
         end
 
-        -- Debugging statements
-        print("Updating ESP for player:", player.Name)
-
         local rootPartPosition = rootPart.Position
         local labelPos, visibleOnScreen = worldToViewportPoint(camera, rootPartPosition)
 
@@ -428,16 +424,6 @@ RunService.RenderStepped:Connect(function()
 
     -- Update custom objects ESP
     for _, customObject in pairs(ESPSettings.customObjects) do
-        if not customObject.name then
-            warn("Custom object name is nil, skipping")
-            continue
-        end
-
-        if not customObject.position then
-            warn("Custom object position is nil, skipping")
-            continue
-        end
-
         local position = customObject.position
         local distance = (position - camera.CFrame.Position).Magnitude
         if distance > ESPSettings.maxEspDistance then continue end
