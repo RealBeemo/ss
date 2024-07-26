@@ -365,18 +365,19 @@ function ESP:SetFontSize(size)
 end
 
 function ESP:AddCustomObject(name, position, color)
-    -- Add the new custom object
-    local newObject = {name = name, position = position, color = color}
+    local uniqueId = HttpService:GenerateGUID(false)
+    local newObject = {id = uniqueId, name = name, position = position, color = color}
     table.insert(ESPSettings.customObjects, newObject)
+    return uniqueId
 end
 
-function ESP:RemoveCustomObject(name)
+function ESP:RemoveCustomObjectById(id)
     for i, customObject in pairs(ESPSettings.customObjects) do
-        if customObject.name == name then
+        if customObject.id == id then
             table.remove(ESPSettings.customObjects, i)
-            if CustomESPObjects[name] then
-                CustomESPObjects[name]:Remove()
-                CustomESPObjects[name] = nil
+            if CustomESPObjects[id] then
+                CustomESPObjects[id]:Remove()
+                CustomESPObjects[id] = nil
             end
             break
         end
@@ -394,7 +395,7 @@ function ESP:UpdateCustomObjects()
 
         local labelPos, visibleOnScreen = worldToViewportPoint(camera, position)
 
-        local espObject = CustomESPObjects[customObject.name]
+        local espObject = CustomESPObjects[customObject.id]
         if not espObject then
             espObject = createDrawing('Text')
             espObject.Center = true
@@ -402,7 +403,7 @@ function ESP:UpdateCustomObjects()
             espObject.Font = Drawing.Fonts.UI
             espObject.Size = ESPSettings.fontSize
             espObject.Color = customObject.color or ESPSettings.Color
-            CustomESPObjects[customObject.name] = espObject
+            CustomESPObjects[customObject.id] = espObject
         end
 
         if visibleOnScreen then
