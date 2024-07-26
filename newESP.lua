@@ -395,17 +395,16 @@ function ESP:UpdateCustomObjects()
 
         local labelPos, visibleOnScreen = worldToViewportPoint(camera, position)
 
-        local espObject = CustomESPObjects[customObject.id]
-        if not espObject then
-            espObject = createDrawing('Text')
-            espObject.Center = true
-            espObject.Outline = true
-            espObject.Font = Drawing.Fonts.UI
-            espObject.Size = ESPSettings.fontSize
-            espObject.Color = customObject.color or ESPSettings.Color
-            CustomESPObjects[customObject.id] = espObject
+        if not CustomESPObjects[customObject.id] then
+            CustomESPObjects[customObject.id] = createDrawing('Text')
+            CustomESPObjects[customObject.id].Center = true
+            CustomESPObjects[customObject.id].Outline = true
+            CustomESPObjects[customObject.id].Font = Drawing.Fonts.UI
+            CustomESPObjects[customObject.id].Size = ESPSettings.fontSize
+            CustomESPObjects[customObject.id].Color = customObject.color or ESPSettings.Color
         end
 
+        local espObject = CustomESPObjects[customObject.id]
         if visibleOnScreen then
             espObject.Visible = true
             espObject.Position = Vector2New(labelPos.X, labelPos.Y)
