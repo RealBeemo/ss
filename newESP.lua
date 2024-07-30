@@ -97,14 +97,18 @@ function CustomObject:Update()
     if not camera then return self:Hide() end
 
     local labelPos, visibleOnScreen = worldToViewportPoint(camera, self._position)
-    if not visibleOnScreen then
+    local distance = (self._position - camera.CFrame.Position).Magnitude
+
+    if not visibleOnScreen or distance > ESPSettings.maxEspDistance then
         self:Hide()
         return
     end
 
+    local text = string.format("[%dm] %s", mathFloor(distance), self._name)
+
     setRP(self._label, 'Visible', visibleOnScreen)
     setRP(self._label, 'Position', Vector2New(labelPos.X, labelPos.Y))
-    setRP(self._label, 'Text', self._name)
+    setRP(self._label, 'Text', text)
     setRP(self._label, 'Color', self._color)
     setRP(self._label, 'Size', ESPSettings.fontSize) -- Update font size live
 end
@@ -410,25 +414,21 @@ end
 
 function ESP:AddObject(id, name, position, color)
     local newObject = CustomObject.new(id, name, position, color)
-    table.insert(CustomObjects, newObject)
+    CustomObjects[id] = newObject
 end
 
 function ESP:RemoveObject(id)
-    for i, obj in ipairs(CustomObjects) do
-        if obj._id == id then
-            obj:Destroy()
-            table.remove(CustomObjects, i)
-            break
-        end
+    local obj = CustomObjects[id]
+    if obj then
+        obj:Destroy()
+        CustomObjects[id] = nil
     end
 end
 
 function ESP:SetObjectColor(id, color)
-    for _, obj in ipairs(CustomObjects) do
-        if obj._id == id then
-            obj:SetColor(color)
-            break
-        end
+    local obj = CustomObjects[id]
+    if obj then
+        obj:SetColor(color)
     end
 end
 
@@ -474,7 +474,7 @@ RunService.RenderStepped:Connect(function()
     end
 
     -- Update custom objects ESP
-    for _, obj in ipairs(CustomObjects) do
+    for _, obj in pairs(CustomObjects) do
         obj:Update()
     end
 
