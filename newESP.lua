@@ -4,6 +4,7 @@ local RunService, UserInputService, HttpService = Utility.RunService, Utility.Us
 
 local EntityESP = {}
 local CustomObjects = {}
+local CustomColors = {}  -- Store colors for different types
 
 local worldToViewportPoint = clonefunction(Instance.new('Camera').WorldToViewportPoint)
 local getMouseLocation = clonefunction(UserInputService.GetMouseLocation)
