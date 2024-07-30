@@ -149,16 +149,16 @@ do --// Entity ESP
         local character = self._player.Character
         if not character then return self:Hide() end
 
-        local rootPart = character:FindFirstChild("HumanoidRootPart")
+        local worldPivot = character:GetPivot()
         local humanoid = character:FindFirstChild("Humanoid")
-        if not rootPart or not humanoid then return self:Hide() end
+        if not worldPivot or not humanoid then return self:Hide() end
 
-        local rootPartPosition = rootPart.Position
+        local worldPivotPosition = worldPivot.Position
 
-        local labelPos, visibleOnScreen = worldToViewportPoint(camera, rootPartPosition)
+        local labelPos, visibleOnScreen = worldToViewportPoint(camera, worldPivotPosition)
         local triangle = self._triangle
 
-        local distance = (rootPartPosition - camera.CFrame.Position).Magnitude
+        local distance = (worldPivotPosition - camera.CFrame.Position).Magnitude
         if distance > ESPSettings.maxEspDistance then return self:Hide() end
 
         local espColor = ESPSettings.Color
@@ -219,7 +219,7 @@ do --// Entity ESP
             text = string.format("[%d/%d] [%dm]\n[%s]\n%s", mathFloor(health), mathFloor(maxHealth), mathFloor(distance), dfValue, stamina)
         end
 
-        local labelPosition = ESPSettings.Boxes and worldToViewportPoint(camera, rootPartPosition + Vector3.new(0, 3, 0)) or Vector2New(labelPos.X, labelPos.Y)
+        local labelPosition = ESPSettings.Boxes and worldToViewportPoint(camera, worldPivotPosition + Vector3.new(0, 3, 0)) or Vector2New(labelPos.X, labelPos.Y)
 
         setRP(label, 'Visible', visibleOnScreen)
         setRP(label, 'Position', labelPosition)
@@ -228,8 +228,8 @@ do --// Entity ESP
         setRP(label, 'Size', ESPSettings.fontSize) -- Update font size live
 
         if ESPSettings.Boxes then
-            local topLeft = worldToViewportPoint(camera, rootPartPosition + Vector3.new(-3, 3, 0))
-            local bottomRight = worldToViewportPoint(camera, rootPartPosition + Vector3.new(3, -3, 0))
+            local topLeft = worldToViewportPoint(camera, worldPivotPosition + Vector3.new(-3, 3, 0))
+            local bottomRight = worldToViewportPoint(camera, worldPivotPosition + Vector3.new(3, -3, 0))
 
             setRP(box, 'Visible', visibleOnScreen)
             setRP(box, 'PointA', Vector2New(topLeft.X, topLeft.Y))
@@ -242,7 +242,7 @@ do --// Entity ESP
         end
 
         if ESPSettings.Tracers then
-            local linePosition = worldToViewportPoint(camera, rootPartPosition + tracerOffset)
+            local linePosition = worldToViewportPoint(camera, worldPivotPosition + tracerOffset)
 
             setRP(line, 'Visible', visibleOnScreen)
             setRP(line, 'From', getMouseLocation(UserInputService))
@@ -383,10 +383,10 @@ RunService.RenderStepped:Connect(function()
         end
 
         local character = player.Character
-        local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+        local worldPivot = character and character:GetPivot()
         local humanoid = character and character:FindFirstChild("Humanoid")
 
-        if not rootPart or not humanoid then
+        if not worldPivot or not humanoid then
             if ESPObjects[player] then
                 ESPObjects[player]:Hide()
             end
@@ -398,8 +398,8 @@ RunService.RenderStepped:Connect(function()
             ESPObjects[player] = EntityESP.new(player)
         end
 
-        local rootPartPosition = rootPart.Position
-        local labelPos, visibleOnScreen = worldToViewportPoint(camera, rootPartPosition)
+        local worldPivotPosition = worldPivot.Position
+        local labelPos, visibleOnScreen = worldToViewportPoint(camera, worldPivotPosition)
 
         ESPObjects[player]:Update()
     end
