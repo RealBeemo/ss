@@ -81,8 +81,6 @@ do --// Entity ESP
 
     EntityESP.id = 0
 
-    local emptyTable = {}
-
     function EntityESP.new(target, isPlayer)
         EntityESP.id += 1
 
@@ -337,24 +335,6 @@ do --// Entity ESP
 
             ESPObjects[player]:Update()
         end
-
-        -- Update ESP for custom objects
-        for object, espObjectList in pairs(ESPObjects) do
-            if type(espObjectList) == "table" then
-                for i = #espObjectList, 1, -1 do
-                    local espObject = espObjectList[i]
-                    if not object or not object:IsA("BasePart") then
-                        espObject:Destroy()
-                        table.remove(espObjectList, i)
-                    else
-                        espObject:Update()
-                    end
-                end
-                if #espObjectList == 0 then
-                    ESPObjects[object] = nil
-                end
-            end
-        end
     end
 
     RunService.RenderStepped:Connect(updateAllESPObjects)
@@ -431,23 +411,6 @@ do --// Entity ESP
             elseif espObject._label then
                 espObject._label.Size = size
             end
-        end
-    end
-
-    function ESP:AddESP(object, name)
-        if not object or not object:IsA("BasePart") then return end
-        local uniqueID = tostring(object:GetDebugId())
-        if not ESPObjects[uniqueID] then
-            ESPObjects[uniqueID] = EntityESP.new(object, false)
-        end
-        ESPObjects[uniqueID]._name = name
-    end
-
-    function ESP:RemoveESP(object)
-        local uniqueID = tostring(object:GetDebugId())
-        if ESPObjects[uniqueID] then
-            ESPObjects[uniqueID]:Destroy()
-            ESPObjects[uniqueID] = nil
         end
     end
 end
