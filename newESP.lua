@@ -38,7 +38,7 @@ local function createDrawing(type)
 end
 
 setRP = function(object, p, v)
-    if object then
+    if object and object[p] ~= v then
         object[p] = v
     end
 end
@@ -314,50 +314,50 @@ do --// Entity ESP
 
     local ESPObjects = {}
 
-local function updateAllESPObjects()
-    local camera = workspace.CurrentCamera
-    if not camera then
-        warn("Camera not found")
-        return
-    end
+    local function updateAllESPObjects()
+        local camera = workspace.CurrentCamera
+        if not camera then
+            warn("Camera not found")
+            return
+        end
 
-    -- Update player ESP
-    for _, player in pairs(game.Players:GetPlayers()) do
-        if not ESPSettings.selfESP and player == game.Players.LocalPlayer then
-            if ESPObjects[player] then
-                ESPObjects[player]:Hide()
+        -- Update player ESP
+        for _, player in pairs(game.Players:GetPlayers()) do
+            if not ESPSettings.selfESP and player == game.Players.LocalPlayer then
+                if ESPObjects[player] then
+                    ESPObjects[player]:Hide()
+                end
+                ESPObjects[player] = nil
+                continue
             end
-            ESPObjects[player] = nil
-            continue
+
+            if not ESPObjects[player] then
+                ESPObjects[player] = EntityESP.new(player, true)
+            end
+
+            ESPObjects[player]:Update()
         end
 
-        if not ESPObjects[player] then
-            ESPObjects[player] = EntityESP.new(player, true)
-        end
-
-        ESPObjects[player]:Update()
-    end
-
-    -- Update ESP for custom objects
-    for object, espObjectList in pairs(ESPObjects) do
-        if type(espObjectList) == "table" then
-            for i = #espObjectList, 1, -1 do
-                local espObject = espObjectList[i]
-                if not object or not object:IsA("BasePart") then
-                    espObject:Destroy()
-                    table.remove(espObjectList, i)
-                else
-                    espObject:Update()
+        -- Update ESP for custom objects
+        for object, espObjectList in pairs(ESPObjects) do
+            if type(espObjectList) == "table" then
+                for i = #espObjectList, 1, -1 do
+                    local espObject = espObjectList[i]
+                    if not object or not object:IsA("BasePart") then
+                        espObject:Destroy()
+                        table.remove(espObjectList, i)
+                    else
+                        espObject:Update()
+                    end
+                end
+                if #espObjectList == 0 then
+                    ESPObjects[object] = nil
                 end
             end
-            if #espObjectList == 0 then
-                ESPObjects[object] = nil
-            end
         end
     end
-end
 
-RunService.RenderStepped:Connect(updateAllESPObjects)
+    RunService.RenderStepped:Connect(updateAllESPObjects)
 
     function ESP:Toggle(state)
         ESPSettings.Enabled = state
