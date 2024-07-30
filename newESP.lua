@@ -15,6 +15,25 @@ local Vector2New = Vector2.new
 
 local mathFloor = math.floor
 
+local mathRad = math.rad
+local mathCos = math.cos
+local mathSin = math.sin
+local mathAtan2 = math.atan2
+
+local TRIANGLE_ANGLE = mathRad(45)
+
+local scalarPointAX, scalarPointAY
+local scalarPointBX, scalarPointBY
+
+local labelOffset, tracerOffset
+local boxOffsetTopRight, boxOffsetBottomLeft
+
+local realGetRPProperty
+
+local function createDrawing(type)
+    return Drawing.new(type)
+end
+
 local setRP = function(object, p, v)
     if object then
         object[p] = v
