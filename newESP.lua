@@ -435,18 +435,18 @@ do --// Entity ESP
 
     function ESP:AddESP(object, name)
         if not object or not object:IsA("BasePart") then return end
-        if not ESPObjects[object] then
-            ESPObjects[object] = {}
+        local uniqueID = tostring(object:GetDebugId())
+        if not ESPObjects[uniqueID] then
+            ESPObjects[uniqueID] = EntityESP.new(object, false)
         end
-        table.insert(ESPObjects[object], EntityESP.new(object, false))
+        ESPObjects[uniqueID]._name = name
     end
 
     function ESP:RemoveESP(object)
-        if ESPObjects[object] then
-            for _, espObject in pairs(ESPObjects[object]) do
-                espObject:Destroy()
-            end
-            ESPObjects[object] = nil
+        local uniqueID = tostring(object:GetDebugId())
+        if ESPObjects[uniqueID] then
+            ESPObjects[uniqueID]:Destroy()
+            ESPObjects[uniqueID] = nil
         end
     end
 end
