@@ -74,8 +74,7 @@ local ESPSettings = {
     showDFValue = false,
     showPlayerName = false,
     selfESP = false,
-    fontSize = 13, -- Default font size
-    customObjects = {} -- Custom objects
+    fontSize = 13 -- Default font size
 }
 
 do --// Entity ESP
@@ -273,7 +272,7 @@ do --// Entity ESP
         local pointX3 = sameBCCos - sameACSin
         local pointY3 = sameBCSin + sameACCos
 
-        return Vector2New(mathFloor(pointX1), mathFloor(pointY1)), Vector2New(mathFloor(pointX2), mathFloor(pointY2)), Vector2New(mathFloor(pointX3), mathFloor(pointY3))
+        return Vector2New(mathFloor(pointX1), mathFloor(pointY1)), Vector2New(mathFloor(pointX2), mathFloor(pointY2)), Vector2New(mathFloor(pointX3))
     end
 
     local function updateESP()
@@ -364,59 +363,7 @@ function ESP:SetFontSize(size)
     end
 end
 
-function ESP:AddCustomObject(name, position, color)
-    local uniqueId = HttpService:GenerateGUID(false)
-    local newObject = {id = uniqueId, name = name, position = position, color = color}
-    table.insert(ESPSettings.customObjects, newObject)
-    return uniqueId
-end
-
-function ESP:RemoveCustomObjectById(id)
-    for i, customObject in pairs(ESPSettings.customObjects) do
-        if customObject.id == id then
-            table.remove(ESPSettings.customObjects, i)
-            if CustomESPObjects[id] then
-                CustomESPObjects[id]:Remove()
-                CustomESPObjects[id] = nil
-            end
-            break
-        end
-    end
-end
-
-function ESP:UpdateCustomObjects()
-    local camera = workspace.CurrentCamera
-    if not camera then return end
-
-    for _, customObject in pairs(ESPSettings.customObjects) do
-        local position = customObject.position
-        local distance = (position - camera.CFrame.Position).Magnitude
-        if distance > ESPSettings.maxEspDistance then continue end
-
-        local labelPos, visibleOnScreen = worldToViewportPoint(camera, position)
-
-        if not CustomESPObjects[customObject.id] then
-            CustomESPObjects[customObject.id] = createDrawing('Text')
-            CustomESPObjects[customObject.id].Center = true
-            CustomESPObjects[customObject.id].Outline = true
-            CustomESPObjects[customObject.id].Font = Drawing.Fonts.UI
-            CustomESPObjects[customObject.id].Size = ESPSettings.fontSize
-            CustomESPObjects[customObject.id].Color = customObject.color or ESPSettings.Color
-        end
-
-        local espObject = CustomESPObjects[customObject.id]
-        if visibleOnScreen then
-            espObject.Visible = true
-            espObject.Position = Vector2New(labelPos.X, labelPos.Y)
-            espObject.Text = string.format("[%s] [%dm]", customObject.name, mathFloor(distance))
-        else
-            espObject.Visible = false
-        end
-    end
-end
-
 local ESPObjects = {}
-local CustomESPObjects = {}
 
 RunService.RenderStepped:Connect(function()
     local camera = workspace.CurrentCamera
@@ -464,9 +411,6 @@ RunService.RenderStepped:Connect(function()
             ESPObjects[player] = nil
         end
     end
-
-    -- Update custom objects ESP
-    ESP:UpdateCustomObjects()
 end)
 
 return ESP
