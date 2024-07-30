@@ -2,9 +2,10 @@ local Utility = loadstring(game:HttpGet("https://raw.githubusercontent.com/RealB
 
 local RunService, UserInputService, HttpService = Utility.RunService, Utility.UserInputService, Utility.HttpService
 
-local ESP = {}
+local EntityESP = {}
 
 local worldToViewportPoint = clonefunction(Instance.new('Camera').WorldToViewportPoint)
+local vectorToWorldSpace = CFrame.new().VectorToWorldSpace
 local getMouseLocation = clonefunction(UserInputService.GetMouseLocation)
 
 local id = HttpService:GenerateGUID(false)
@@ -13,6 +14,7 @@ local vector3New = Vector3.new
 local Vector2New = Vector2.new
 
 local mathFloor = math.floor
+
 local mathRad = math.rad
 local mathCos = math.cos
 local mathSin = math.sin
@@ -23,6 +25,8 @@ local scalarPointBX, scalarPointBY
 
 local labelOffset, tracerOffset
 local boxOffsetTopRight, boxOffsetBottomLeft
+
+local realGetRPProperty
 
 local setRP
 local getRPProperty
@@ -38,7 +42,7 @@ local function createDrawing(type)
 end
 
 setRP = function(object, p, v)
-    if object and object[p] ~= v then
+    if object then
         object[p] = v
     end
 end
@@ -70,26 +74,26 @@ local ESPSettings = {
     showDFValue = false,
     showPlayerName = false,
     selfESP = false,
-    showObjectName = false,
     fontSize = 13 -- Default font size
 }
 
 do --// Entity ESP
-    local EntityESP = {}
+    EntityESP = {}
     EntityESP.__index = EntityESP
     EntityESP.__ClassName = 'entityESP'
 
     EntityESP.id = 0
 
-    function EntityESP.new(target, isPlayer)
+    local emptyTable = {}
+
+    function EntityESP.new(player)
         EntityESP.id += 1
 
         local self = setmetatable({}, EntityESP)
 
         self._id = EntityESP.id
-        self._target = target
-        self._isPlayer = isPlayer
-        self._name = isPlayer and target.Name or "Object"
+        self._player = player
+        self._playerName = player.Name
 
         self._triangle = createDrawing('Triangle')
         self._triangle.Visible = true
@@ -142,19 +146,12 @@ do --// Entity ESP
         local camera = workspace.CurrentCamera
         if not camera then return self:Hide() end
 
-        local target = self._target
-        local rootPart
-        local isPlayer = self._isPlayer
+        local character = self._player.Character
+        if not character then return self:Hide() end
 
-        if isPlayer then
-            local character = target.Character
-            if not character then return self:Hide() end
-            rootPart = character:FindFirstChild("HumanoidRootPart")
-            if not rootPart then return self:Hide() end
-        else
-            if not target:IsA("BasePart") then return self:Hide() end
-            rootPart = target
-        end
+        local rootPart = character:FindFirstChild("HumanoidRootPart")
+        local humanoid = character:FindFirstChild("Humanoid")
+        if not rootPart or not humanoid then return self:Hide() end
 
         local rootPartPosition = rootPart.Position
 
@@ -196,42 +193,30 @@ do --// Entity ESP
 
         local label, box, line = self._label, self._box, self._line
 
+        local health = humanoid.Health
+        local maxHealth = humanoid.MaxHealth
+        local stamina = ""
+        local dfValue = "None"
+
+        if ESPSettings.showStamina then
+            local staminaObj = game.ReplicatedStorage:FindFirstChild("Stats" .. self._player.Name)
+            if staminaObj and staminaObj:FindFirstChild("Stamina") then
+                stamina = "[Stamina] [" .. staminaObj.Stamina.Value .. "]"
+            end
+        end
+
+        if ESPSettings.showDFValue then
+            local dfObj = game.ReplicatedStorage["Stats" .. self._player.Name]
+            if dfObj and dfObj.Stats and dfObj.Stats:FindFirstChild("DF") then
+                dfValue = dfObj.Stats.DF.Value ~= "" and dfObj.Stats.DF.Value or "None"
+            end
+        end
+
         local text
-        if isPlayer then
-            local character = target.Character
-            local humanoid = character and character:FindFirstChild("Humanoid")
-            if not humanoid then return self:Hide() end
-
-            local health = humanoid.Health
-            local maxHealth = humanoid.MaxHealth
-            local stamina = ""
-            local dfValue = "None"
-
-            if ESPSettings.showStamina then
-                local staminaObj = game.ReplicatedStorage:FindFirstChild("Stats" .. target.Name)
-                if staminaObj and staminaObj:FindFirstChild("Stamina") then
-                    stamina = "[Stamina] [" .. staminaObj.Stamina.Value .. "]"
-                end
-            end
-
-            if ESPSettings.showDFValue then
-                local dfObj = game.ReplicatedStorage["Stats" .. target.Name]
-                if dfObj and dfObj.Stats and dfObj.Stats:FindFirstChild("DF") then
-                    dfValue = dfObj.Stats.DF.Value ~= "" and dfObj.Stats.DF.Value or "None"
-                end
-            end
-
-            if ESPSettings.showPlayerName then
-                text = string.format("[%s] [%d]\n[%d/%d]\n[%s]\n%s", self._name, mathFloor(distance), mathFloor(health), mathFloor(maxHealth), dfValue, stamina)
-            else
-                text = string.format("[%d/%d] [%dm]\n[%s]\n%s", mathFloor(health), mathFloor(maxHealth), mathFloor(distance), dfValue, stamina)
-            end
+        if ESPSettings.showPlayerName then
+            text = string.format("[%s] [%d]\n[%d/%d]\n[%s]\n%s", self._playerName, mathFloor(distance), mathFloor(health), mathFloor(maxHealth), dfValue, stamina)
         else
-            if ESPSettings.showObjectName then
-                text = string.format("[%s] [%dm]", self._name, mathFloor(distance))
-            else
-                text = string.format("[%dm]", mathFloor(distance))
-            end
+            text = string.format("[%d/%d] [%dm]\n[%s]\n%s", mathFloor(health), mathFloor(maxHealth), mathFloor(distance), dfValue, stamina)
         end
 
         local labelPosition = ESPSettings.Boxes and worldToViewportPoint(camera, rootPartPosition + Vector3.new(0, 3, 0)) or Vector2New(labelPos.X, labelPos.Y)
@@ -309,110 +294,123 @@ do --// Entity ESP
 
     updateESP()
     RunService:BindToRenderStep(id, Enum.RenderPriority.Camera.Value, updateESP)
+end
 
-    local ESPObjects = {}
+local ESP = {}
 
-    local function updateAllESPObjects()
-        local camera = workspace.CurrentCamera
-        if not camera then
-            warn("Camera not found")
-            return
-        end
+function ESP:Toggle(state)
+    ESPSettings.Enabled = state
+end
 
-        -- Update player ESP
-        for _, player in pairs(game.Players:GetPlayers()) do
-            if not ESPSettings.selfESP and player == game.Players.LocalPlayer then
-                if ESPObjects[player] then
-                    ESPObjects[player]:Hide()
-                end
-                ESPObjects[player] = nil
-                continue
-            end
+function ESP:SetPlayers(state)
+    ESPSettings.Players = state
+end
 
-            if not ESPObjects[player] then
-                ESPObjects[player] = EntityESP.new(player, true)
-            end
+function ESP:SetBoxes(state)
+    ESPSettings.Boxes = state
+end
 
-            ESPObjects[player]:Update()
-        end
-    end
+function ESP:SetTracers(state)
+    ESPSettings.Tracers = state
+end
 
-    RunService.RenderStepped:Connect(updateAllESPObjects)
+function ESP:SetColor(color)
+    ESPSettings.Color = color
+end
 
-    function ESP:Toggle(state)
-        ESPSettings.Enabled = state
-    end
+function ESP:SetBoxesColor(color)
+    ESPSettings.BoxesColor = color
+end
 
-    function ESP:SetPlayers(state)
-        ESPSettings.Players = state
-    end
+function ESP:SetTracersColor(color)
+    ESPSettings.TracersColor = color
+end
 
-    function ESP:SetBoxes(state)
-        ESPSettings.Boxes = state
-    end
+function ESP:SetMaxDistance(distance)
+    ESPSettings.maxEspDistance = distance
+end
 
-    function ESP:SetTracers(state)
-        ESPSettings.Tracers = state
-    end
+function ESP:SetProximityArrows(state)
+    ESPSettings.proximityArrows = state
+end
 
-    function ESP:SetColor(color)
-        ESPSettings.Color = color
-    end
+function ESP:SetMaxProximityArrowDistance(distance)
+    ESPSettings.maxProximityArrowDistance = distance
+end
 
-    function ESP:SetBoxesColor(color)
-        ESPSettings.BoxesColor = color
-    end
+function ESP:SetShowStamina(state)
+    ESPSettings.showStamina = state
+end
 
-    function ESP:SetTracersColor(color)
-        ESPSettings.TracersColor = color
-    end
+function ESP:SetShowDFValue(state)
+    ESPSettings.showDFValue = state
+end
 
-    function ESP:SetMaxDistance(distance)
-        ESPSettings.maxEspDistance = distance
-    end
+function ESP:SetShowPlayerName(state)
+    ESPSettings.showPlayerName = state
+end
 
-    function ESP:SetProximityArrows(state)
-        ESPSettings.proximityArrows = state
-    end
+function ESP:SetSelfESP(state)
+    ESPSettings.selfESP = state
+end
 
-    function ESP:SetMaxProximityArrowDistance(distance)
-        ESPSettings.maxProximityArrowDistance = distance
-    end
-
-    function ESP:SetShowStamina(state)
-        ESPSettings.showStamina = state
-    end
-
-    function ESP:SetShowDFValue(state)
-        ESPSettings.showDFValue = state
-    end
-
-    function ESP:SetShowPlayerName(state)
-        ESPSettings.showPlayerName = state
-    end
-
-    function ESP:SetSelfESP(state)
-        ESPSettings.selfESP = state
-    end
-
-    function ESP:SetShowObjectName(state)
-        ESPSettings.showObjectName = state
-    end
-
-    function ESP:SetFontSize(size)
-        ESPSettings.fontSize = size
-        for _, espObject in pairs(ESPObjects or {}) do
-            if type(espObject) == "table" then
-                for _, obj in pairs(espObject) do
-                    if obj._label then
-                        obj._label.Size = size
-                    end
-                end
-            elseif espObject._label then
-                espObject._label.Size = size
-            end
+function ESP:SetFontSize(size)
+    ESPSettings.fontSize = size
+    for _, espObject in pairs(ESPObjects or {}) do
+        if espObject._label then
+            espObject._label.Size = size
         end
     end
 end
+
+local ESPObjects = {}
+
+RunService.RenderStepped:Connect(function()
+    local camera = workspace.CurrentCamera
+    if not camera then
+        warn("Camera not found")
+        return
+    end
+
+    -- Update player ESP
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if not ESPSettings.selfESP and player == game.Players.LocalPlayer then
+            if ESPObjects[player] then
+                ESPObjects[player]:Hide()
+            end
+            ESPObjects[player] = nil
+            continue
+        end
+
+        local character = player.Character
+        local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+        local humanoid = character and character:FindFirstChild("Humanoid")
+
+        if not rootPart or not humanoid then
+            if ESPObjects[player] then
+                ESPObjects[player]:Hide()
+            end
+            ESPObjects[player] = nil
+            continue
+        end
+
+        if not ESPObjects[player] then
+            ESPObjects[player] = EntityESP.new(player)
+        end
+
+        local rootPartPosition = rootPart.Position
+        local labelPos, visibleOnScreen = worldToViewportPoint(camera, rootPartPosition)
+
+        ESPObjects[player]:Update()
+    end
+
+    -- Cleanup ESP objects for players that no longer exist
+    for player, espObject in pairs(ESPObjects) do
+        if not game.Players:FindFirstChild(player.Name) then
+            espObject:Destroy()
+            ESPObjects[player] = nil
+        end
+    end
+end)
 
 return ESP
