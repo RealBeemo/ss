@@ -4,7 +4,7 @@ local RunService, UserInputService, HttpService = Utility.RunService, Utility.Us
 
 local EntityESP = {}
 local CustomObjects = {}
-local CustomColors = {}  -- Store colors for different types
+local CustomColors = {}
 
 local worldToViewportPoint = clonefunction(Instance.new('Camera').WorldToViewportPoint)
 local getMouseLocation = clonefunction(UserInputService.GetMouseLocation)
@@ -85,6 +85,8 @@ function CustomObject.new(id, name, position, color)
     self._label.Size = ESPSettings.fontSize
     self._label.Color = color
 
+    print("Created CustomObject:", id, name)
+
     return self
 end
 
@@ -120,6 +122,7 @@ end
 
 function CustomObject:Destroy()
     destroyRP(self._label)
+    print("Destroyed CustomObject:", self._id, self._name)
 end
 
 function CustomObject:SetColor(color)
