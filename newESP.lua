@@ -425,10 +425,20 @@ function ESP:RemoveObject(id)
     end
 end
 
-function ESP:SetObjectColor(id, color)
-    local obj = CustomObjects[id]
-    if obj then
-        obj:SetColor(color)
+function ESP:RemoveObjectsByName(name)
+    for id, obj in pairs(CustomObjects) do
+        if obj._name == name then
+            obj:Destroy()
+            CustomObjects[id] = nil
+        end
+    end
+end
+
+function ESP:SetObjectColorByName(name, color)
+    for id, obj in pairs(CustomObjects) do
+        if obj._name == name then
+            obj:SetColor(color)
+        end
     end
 end
 
