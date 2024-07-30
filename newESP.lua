@@ -3,9 +3,9 @@ local Utility = loadstring(game:HttpGet("https://raw.githubusercontent.com/RealB
 local RunService, UserInputService, HttpService = Utility.RunService, Utility.UserInputService, Utility.HttpService
 
 local EntityESP = {}
+local CustomObjects = {}
 
 local worldToViewportPoint = clonefunction(Instance.new('Camera').WorldToViewportPoint)
-local vectorToWorldSpace = CFrame.new().VectorToWorldSpace
 local getMouseLocation = clonefunction(UserInputService.GetMouseLocation)
 
 local id = HttpService:GenerateGUID(false)
@@ -15,45 +15,13 @@ local Vector2New = Vector2.new
 
 local mathFloor = math.floor
 
-local mathRad = math.rad
-local mathCos = math.cos
-local mathSin = math.sin
-local mathAtan2 = math.atan2
-
-local scalarPointAX, scalarPointAY
-local scalarPointBX, scalarPointBY
-
-local labelOffset, tracerOffset
-local boxOffsetTopRight, boxOffsetBottomLeft
-
-local realGetRPProperty
-
-local setRP
-local getRPProperty
-local destroyRP
-
-local scalarSize = 20
-
-local ESP_RED_COLOR, ESP_GREEN_COLOR = Color3.fromRGB(192, 57, 43), Color3.fromRGB(39, 174, 96)
-local TRIANGLE_ANGLE = mathRad(45)
-
-local function createDrawing(type)
-    return Drawing.new(type)
-end
-
-setRP = function(object, p, v)
+local setRP = function(object, p, v)
     if object then
         object[p] = v
     end
 end
 
-getRPProperty = function(object, p)
-    if object then
-        return object[p]
-    end
-end
-
-destroyRP = function(object)
+local destroyRP = function(object)
     if object then
         object:Remove()
     end
@@ -76,6 +44,64 @@ local ESPSettings = {
     selfESP = false,
     fontSize = 13 -- Default font size
 }
+
+-- Custom Object Class
+local CustomObject = {}
+CustomObject.__index = CustomObject
+
+function CustomObject.new(id, name, position, color)
+    local self = setmetatable({}, CustomObject)
+    self._id = id
+    self._name = name
+    self._position = position
+    self._color = color
+
+    self._label = Drawing.new('Text')
+    self._label.Visible = true
+    self._label.Center = true
+    self._label.Outline = true
+    self._label.Text = name
+    self._label.Font = Drawing.Fonts.UI
+    self._label.Size = ESPSettings.fontSize
+    self._label.Color = color
+
+    return self
+end
+
+function CustomObject:Update()
+    if not ESPSettings.Enabled then
+        self:Hide()
+        return
+    end
+
+    local camera = workspace.CurrentCamera
+    if not camera then return self:Hide() end
+
+    local labelPos, visibleOnScreen = worldToViewportPoint(camera, self._position)
+    if not visibleOnScreen then
+        self:Hide()
+        return
+    end
+
+    setRP(self._label, 'Visible', visibleOnScreen)
+    setRP(self._label, 'Position', Vector2New(labelPos.X, labelPos.Y))
+    setRP(self._label, 'Text', self._name)
+    setRP(self._label, 'Color', self._color)
+    setRP(self._label, 'Size', ESPSettings.fontSize) -- Update font size live
+end
+
+function CustomObject:Hide()
+    setRP(self._label, 'Visible', false)
+end
+
+function CustomObject:Destroy()
+    destroyRP(self._label)
+end
+
+function CustomObject:SetColor(color)
+    self._color = color
+    setRP(self._label, 'Color', color)
+end
 
 do --// Entity ESP
     EntityESP = {}
@@ -363,6 +389,30 @@ function ESP:SetFontSize(size)
     end
 end
 
+function ESP:AddObject(id, name, position, color)
+    local newObject = CustomObject.new(id, name, position, color)
+    table.insert(CustomObjects, newObject)
+end
+
+function ESP:RemoveObject(id)
+    for i, obj in ipairs(CustomObjects) do
+        if obj._id == id then
+            obj:Destroy()
+            table.remove(CustomObjects, i)
+            break
+        end
+    end
+end
+
+function ESP:SetObjectColor(id, color)
+    for _, obj in ipairs(CustomObjects) do
+        if obj._id == id then
+            obj:SetColor(color)
+            break
+        end
+    end
+end
+
 local ESPObjects = {}
 
 RunService.RenderStepped:Connect(function()
@@ -402,6 +452,11 @@ RunService.RenderStepped:Connect(function()
         local labelPos, visibleOnScreen = worldToViewportPoint(camera, rootPartPosition)
 
         ESPObjects[player]:Update()
+    end
+
+    -- Update custom objects ESP
+    for _, obj in ipairs(CustomObjects) do
+        obj:Update()
     end
 
     -- Cleanup ESP objects for players that no longer exist
