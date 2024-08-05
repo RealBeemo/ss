@@ -85,7 +85,7 @@ function CustomObject.new(id, name, position, color)
     self._label.Size = ESPSettings.fontSize
     self._label.Color = color
 
-    print("Created CustomObject:", id, name)
+    print("Created CustomObject:", id, name, position, color)
 
     return self
 end
@@ -128,6 +128,7 @@ end
 function CustomObject:SetColor(color)
     self._color = color
     setRP(self._label, 'Color', color)
+    print("Set color for CustomObject:", self._id, self._name, color)
 end
 
 do --// Entity ESP
@@ -173,6 +174,8 @@ do --// Entity ESP
         self._line.Visible = false
         self._line.Color = Color3.fromRGB(255, 255, 255)
 
+        print("Created EntityESP for player:", player.Name)
+
         return self
     end
 
@@ -181,6 +184,7 @@ do --// Entity ESP
         destroyRP(self._label)
         destroyRP(self._box)
         destroyRP(self._line)
+        print("Destroyed EntityESP for player:", self._playerName)
     end
 
     function EntityESP:Hide()
@@ -353,62 +357,77 @@ local ESP = {}
 
 function ESP:Toggle(state)
     ESPSettings.Enabled = state
+    print("ESP Toggled:", state)
 end
 
 function ESP:SetPlayers(state)
     ESPSettings.Players = state
+    print("Player ESP Toggled:", state)
 end
 
 function ESP:SetBoxes(state)
     ESPSettings.Boxes = state
+    print("Box ESP Toggled:", state)
 end
 
 function ESP:SetTracers(state)
     ESPSettings.Tracers = state
+    print("Tracer ESP Toggled:", state)
 end
 
 function ESP:SetColor(color)
     ESPSettings.Color = color
+    print("Set ESP Color:", color)
 end
 
 function ESP:SetBoxesColor(color)
     ESPSettings.BoxesColor = color
+    print("Set ESP Boxes Color:", color)
 end
 
 function ESP:SetTracersColor(color)
     ESPSettings.TracersColor = color
+    print("Set ESP Tracers Color:", color)
 end
 
 function ESP:SetMaxDistance(distance)
     ESPSettings.maxEspDistance = distance
+    print("Set Max ESP Distance:", distance)
 end
 
 function ESP:SetProximityArrows(state)
     ESPSettings.proximityArrows = state
+    print("Proximity Arrows Toggled:", state)
 end
 
 function ESP:SetMaxProximityArrowDistance(distance)
     ESPSettings.maxProximityArrowDistance = distance
+    print("Set Max Proximity Arrow Distance:", distance)
 end
 
 function ESP:SetShowStamina(state)
     ESPSettings.showStamina = state
+    print("Show Stamina Toggled:", state)
 end
 
 function ESP:SetShowDFValue(state)
     ESPSettings.showDFValue = state
+    print("Show DF Value Toggled:", state)
 end
 
 function ESP:SetShowPlayerName(state)
     ESPSettings.showPlayerName = state
+    print("Show Player Name Toggled:", state)
 end
 
 function ESP:SetSelfESP(state)
     ESPSettings.selfESP = state
+    print("Self ESP Toggled:", state)
 end
 
 function ESP:SetFontSize(size)
     ESPSettings.fontSize = size
+    print("Set ESP Font Size:", size)
     for _, espObject in pairs(ESPObjects or {}) do
         if espObject._label then
             espObject._label.Size = size
@@ -419,6 +438,7 @@ end
 function ESP:AddObject(id, name, position, color)
     local newObject = CustomObject.new(id, name, position, color)
     CustomObjects[id] = newObject
+    print("Added ESP Object:", id, name, position, color)
 end
 
 function ESP:RemoveObject(id)
@@ -426,6 +446,7 @@ function ESP:RemoveObject(id)
     if obj then
         obj:Destroy()
         CustomObjects[id] = nil
+        print("Removed ESP Object:", id)
     end
 end
 
@@ -434,6 +455,7 @@ function ESP:RemoveObjectsByName(name)
         if obj._name == name then
             obj:Destroy()
             CustomObjects[id] = nil
+            print("Removed ESP Objects by Name:", name)
         end
     end
 end
@@ -444,6 +466,7 @@ function ESP:SetObjectColorByName(name, color)
             obj:SetColor(color)
         end
     end
+    print("Set Color for ESP Objects by Name:", name, color)
 end
 
 local ESPObjects = {}
@@ -480,9 +503,6 @@ RunService.RenderStepped:Connect(function()
         if not ESPObjects[player] then
             ESPObjects[player] = EntityESP.new(player)
         end
-
-        local rootPartPosition = rootPart.Position
-        local labelPos, visibleOnScreen = worldToViewportPoint(camera, rootPartPosition)
 
         ESPObjects[player]:Update()
     end
