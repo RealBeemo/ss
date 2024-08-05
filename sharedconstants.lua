@@ -13,7 +13,6 @@ local SharedConstants = {
     NODASHCD_HOOKED = false,
     NO_PROMPT_CD = nil,
     SET_CLIMBING = nil,
-    CLIMBING_TIME = math.huge,
     OG_LIGHTNING = {},
     PICKUP_CD = 0,
     SPEED_BODY_VELOCITY = nil,
