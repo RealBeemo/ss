@@ -18,6 +18,7 @@ local SharedConstants = {
     PICKUP_CD = 0,
     SPEED_BODY_VELOCITY = nil,
     SPEED_CONNECTION = nil,
+    CLIMB_SPEED_CONNECTION = nil,
     STORED_CHILDS = nil,
     STORED_DF = nil,
     STUN_CONNECTION = nil,
