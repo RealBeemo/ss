@@ -4,6 +4,7 @@ local SharedConstants = {
     CURRENT_HITBOX_COLOR = Color3.fromRGB(255, 0, 0),
     CURRENT_HITBOX_TRANS = 0,
     CURRENT_SPEED = 1,
+    CURRENT_CLIMB_SPEED = 50,
     DF_CONNECTION = nil,
     FLY_BODY_VELOCITY = nil,
     FLY_CONNECTION = nil,
