@@ -3232,13 +3232,14 @@ function Library:CreateWindow(Name, Size, HideButton)
             local Config = configSystem.sector:AddDropdown("Configs", {}, default, false, function() end, "")
             for i,v in pairs(listfiles(configSystem.configFolder)) do
                 if v:find(".txt") then
-                    Config:Add(tostring(v):gsub(configSystem.configFolder .. "\\", ""):gsub(".txt", ""))
+                    local fileName = tostring(v):gsub(configSystem.configFolder .. "[/\\]", ""):gsub(".txt$", ""):match("([^/\\]+)$")
+                    Config:Add(fileName)
                 end
             end
 
             configSystem.Create = configSystem.sector:AddButton("Create", function()
                 for i,v in pairs(listfiles(configSystem.configFolder)) do
-                    Config:Remove(tostring(v):gsub(configSystem.configFolder .. "\\", ""):gsub(".txt", ""))
+                    Config:Remove(tostring(v):gsub(configSystem.configFolder .. "[/\\]", ""):gsub(".txt$", ""):match("([^/\\]+)$"))
                 end
 
                 if ConfigName:Get() and ConfigName:Get() ~= "" then
@@ -3262,7 +3263,9 @@ function Library:CreateWindow(Name, Size, HideButton)
     
                     for i,v in pairs(listfiles(configSystem.configFolder)) do
                         if v:find(".txt") then
-                            Config:Add(tostring(v):gsub(configSystem.configFolder .. "\\", ""):gsub(".txt", ""))
+                            local fileName = tostring(v):gsub(configSystem.configFolder .. "[/\\]", ""):gsub(".txt$", ""):match("([^/\\]+)$")
+                            Config:Add(fileName)
+                            print(fileName)
                         end
                     end
                 end
@@ -3334,7 +3337,7 @@ function Library:CreateWindow(Name, Size, HideButton)
 
             configSystem.Delete = configSystem.sector:AddButton("Delete", function()
                 for i,v in pairs(listfiles(configSystem.configFolder)) do
-                    Config:Remove(tostring(v):gsub(configSystem.configFolder .. "\\", ""):gsub(".txt", ""))
+                    Config:Remove(tostring(v):gsub(configSystem.configFolder .. "[/\\]", ""):gsub(".txt$", ""):match("([^/\\]+)$"))
                 end
 
                 if (not Config:Get() or Config:Get() == "") then return end
@@ -3343,7 +3346,7 @@ function Library:CreateWindow(Name, Size, HideButton)
 
                 for i,v in pairs(listfiles(configSystem.configFolder)) do
                     if v:find(".txt") then
-                        Config:Add(tostring(v):gsub(configSystem.configFolder .. "\\", ""):gsub(".txt", ""))
+                        Config:Add(tostring(v):gsub(configSystem.configFolder .. "[/\\]", ""):gsub(".txt$", ""):match("([^/\\]+)$"))
                     end
                 end
             end)
