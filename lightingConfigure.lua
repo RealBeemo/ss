@@ -18,17 +18,11 @@ function LightingModule.SaveSettings(settingType)
             Ambient = lighting.Ambient,
             Brightness = lighting.Brightness,
             ClockTime = lighting.ClockTime,
-            FogEnd = lighting.FogEnd,
-            FogColor = lighting.FogColor,
-            FogStart = lighting.FogStart,
             GlobalShadows = lighting.GlobalShadows,
             ShadowSoftness = lighting.ShadowSoftness,
             OutdoorAmbient = lighting.OutdoorAmbient,
             EnvironmentDiffuseScale = lighting.EnvironmentDiffuseScale,
             EnvironmentSpecularScale = lighting.EnvironmentSpecularScale,
-            ExposureCompensation = lighting.ExposureCompensation,
-            GeographicLatitude = lighting.GeographicLatitude,
-            TimeOfDay = lighting.TimeOfDay,
             ColorShift_Top = lighting.ColorShift_Top,
             ColorShift_Bottom = lighting.ColorShift_Bottom
         }
