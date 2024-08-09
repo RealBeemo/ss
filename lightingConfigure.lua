@@ -22,6 +22,7 @@ function LightingModule.SaveSettings(settingType)
             FogColor = lighting.FogColor,
             FogStart = lighting.FogStart,
             GlobalShadows = lighting.GlobalShadows,
+            ShadowSoftness = lighting.ShadowSoftness,
             OutdoorAmbient = lighting.OutdoorAmbient,
             EnvironmentDiffuseScale = lighting.EnvironmentDiffuseScale,
             EnvironmentSpecularScale = lighting.EnvironmentSpecularScale,
@@ -59,6 +60,7 @@ function LightingModule.SaveSettings(settingType)
             DefaultSettings.Atmosphere = {
                 Color = atmosphere.Color,
                 Decay = atmosphere.Decay,
+                DecayColor = atmosphere.DecayColor,
                 Density = atmosphere.Density,
                 Glare = atmosphere.Glare,
                 Haze = atmosphere.Haze
@@ -111,7 +113,8 @@ function LightingModule.Configure(settings)
     if settings.FogEnd then lighting.FogEnd = settings.FogEnd end
     if settings.FogColor then lighting.FogColor = settings.FogColor end
     if settings.FogStart then lighting.FogStart = settings.FogStart end
-    if settings.GlobalShadows then lighting.GlobalShadows = settings.GlobalShadows end
+    if settings.GlobalShadows ~= nil then lighting.GlobalShadows = settings.GlobalShadows end
+    if settings.ShadowSoftness ~= nil then lighting.ShadowSoftness = settings.ShadowSoftness end
     if settings.OutdoorAmbient then lighting.OutdoorAmbient = settings.OutdoorAmbient end
     if settings.EnvironmentDiffuseScale then lighting.EnvironmentDiffuseScale = settings.EnvironmentDiffuseScale end
     if settings.EnvironmentSpecularScale then lighting.EnvironmentSpecularScale = settings.EnvironmentSpecularScale end
@@ -127,6 +130,7 @@ function LightingModule.Configure(settings)
         if atmosphere then
             if settings.Atmosphere.Color then atmosphere.Color = settings.Atmosphere.Color end
             if settings.Atmosphere.Decay then atmosphere.Decay = settings.Atmosphere.Decay end
+            if settings.Atmosphere.DecayColor then atmosphere.DecayColor = settings.Atmosphere.DecayColor end
             if settings.Atmosphere.Density then atmosphere.Density = settings.Atmosphere.Density end
             if settings.Atmosphere.Glare then atmosphere.Glare = settings.Atmosphere.Glare end
             if settings.Atmosphere.Haze then atmosphere.Haze = settings.Atmosphere.Haze end
