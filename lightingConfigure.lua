@@ -60,7 +60,6 @@ function LightingModule.SaveSettings(settingType)
             DefaultSettings.Atmosphere = {
                 Color = atmosphere.Color,
                 Decay = atmosphere.Decay,
-                DecayColor = atmosphere.DecayColor,
                 Density = atmosphere.Density,
                 Glare = atmosphere.Glare,
                 Haze = atmosphere.Haze
