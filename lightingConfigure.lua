@@ -1,68 +1,102 @@
 -- EnhancedLightingModule.lua
 local LightingModule = {}
 
--- Table to store default lighting settings
-local DefaultLighting = {}
+-- Tables to store default settings for various lighting properties
+local DefaultSettings = {
+    Lighting = {},
+    ColorCorrection = {},
+    Bloom = {},
+    Atmosphere = {}
+}
 
--- Function to save the current lighting settings
-function LightingModule.SaveCurrentSettings()
+-- Function to save the current settings based on the provided argument
+function LightingModule.SaveSettings(settingType)
     local lighting = game.Lighting
-    DefaultLighting = {
-        Ambient = lighting.Ambient,
-        Brightness = lighting.Brightness,
-        ClockTime = lighting.ClockTime,
-        FogEnd = lighting.FogEnd,
-        FogColor = lighting.FogColor,
-        FogStart = lighting.FogStart,
-        GlobalShadows = lighting.GlobalShadows,
-        OutdoorAmbient = lighting.OutdoorAmbient,
-        EnvironmentDiffuseScale = lighting.EnvironmentDiffuseScale,
-        EnvironmentSpecularScale = lighting.EnvironmentSpecularScale,
-        ExposureCompensation = lighting.ExposureCompensation,
-        GeographicLatitude = lighting.GeographicLatitude,
-        TimeOfDay = lighting.TimeOfDay
-    }
-
-    -- Save Atmosphere settings if available
-    local atmosphere = lighting:FindFirstChildOfClass("Atmosphere")
-    if atmosphere then
-        DefaultLighting.Atmosphere = {
-            Color = atmosphere.Color,
-            Decay = atmosphere.Decay,
-            Density = atmosphere.Density,
-            Glare = atmosphere.Glare,
-            Haze = atmosphere.Haze
+    
+    if settingType == "Lighting" then
+        DefaultSettings.Lighting = {
+            Ambient = lighting.Ambient,
+            Brightness = lighting.Brightness,
+            ClockTime = lighting.ClockTime,
+            FogEnd = lighting.FogEnd,
+            FogColor = lighting.FogColor,
+            FogStart = lighting.FogStart,
+            GlobalShadows = lighting.GlobalShadows,
+            OutdoorAmbient = lighting.OutdoorAmbient,
+            EnvironmentDiffuseScale = lighting.EnvironmentDiffuseScale,
+            EnvironmentSpecularScale = lighting.EnvironmentSpecularScale,
+            ExposureCompensation = lighting.ExposureCompensation,
+            GeographicLatitude = lighting.GeographicLatitude,
+            TimeOfDay = lighting.TimeOfDay,
+            ColorShift_Top = lighting.ColorShift_Top,
+            ColorShift_Bottom = lighting.ColorShift_Bottom
         }
-    end
-
-    -- Save Bloom settings if available
-    local bloom = lighting:FindFirstChildOfClass("BloomEffect")
-    if bloom then
-        DefaultLighting.Bloom = {
-            Intensity = bloom.Intensity,
-            Size = bloom.Size,
-            Threshold = bloom.Threshold
-        }
-    end
-
-    -- Save Color Correction settings if available
-    local colorCorrection = lighting:FindFirstChildOfClass("ColorCorrectionEffect")
-    if colorCorrection then
-        DefaultLighting.ColorCorrection = {
-            Brightness = colorCorrection.Brightness,
-            Contrast = colorCorrection.Contrast,
-            Saturation = colorCorrection.Saturation,
-            TintColor = colorCorrection.TintColor
-        }
+    
+    elseif settingType == "ColorCorrection" then
+        local colorCorrection = lighting:FindFirstChildOfClass("ColorCorrectionEffect")
+        if colorCorrection then
+            DefaultSettings.ColorCorrection = {
+                Brightness = colorCorrection.Brightness,
+                Contrast = colorCorrection.Contrast,
+                Saturation = colorCorrection.Saturation,
+                TintColor = colorCorrection.TintColor
+            }
+        end
+    
+    elseif settingType == "Bloom" then
+        local bloom = lighting:FindFirstChildOfClass("BloomEffect")
+        if bloom then
+            DefaultSettings.Bloom = {
+                Intensity = bloom.Intensity,
+                Size = bloom.Size,
+                Threshold = bloom.Threshold
+            }
+        end
+    
+    elseif settingType == "Atmosphere" then
+        local atmosphere = lighting:FindFirstChildOfClass("Atmosphere")
+        if atmosphere then
+            DefaultSettings.Atmosphere = {
+                Color = atmosphere.Color,
+                Decay = atmosphere.Decay,
+                Density = atmosphere.Density,
+                Glare = atmosphere.Glare,
+                Haze = atmosphere.Haze
+            }
+        end
     end
 end
 
--- Function to restore the saved default lighting settings
-function LightingModule.RestoreDefaultSettings()
-    if DefaultLighting then
-        LightingModule.Configure(DefaultLighting)
-    else
-        warn("Default lighting settings not saved!")
+-- Function to restore the saved settings based on the provided argument
+function LightingModule.RestoreSettings(settingType)
+    local lighting = game.Lighting
+    
+    if settingType == "Lighting" and DefaultSettings.Lighting then
+        LightingModule.Configure(DefaultSettings.Lighting)
+    
+    elseif settingType == "ColorCorrection" and DefaultSettings.ColorCorrection then
+        local colorCorrection = lighting:FindFirstChildOfClass("ColorCorrectionEffect")
+        if colorCorrection then
+            for prop, value in pairs(DefaultSettings.ColorCorrection) do
+                colorCorrection[prop] = value
+            end
+        end
+    
+    elseif settingType == "Bloom" and DefaultSettings.Bloom then
+        local bloom = lighting:FindFirstChildOfClass("BloomEffect")
+        if bloom then
+            for prop, value in pairs(DefaultSettings.Bloom) do
+                bloom[prop] = value
+            end
+        end
+    
+    elseif settingType == "Atmosphere" and DefaultSettings.Atmosphere then
+        local atmosphere = lighting:FindFirstChildOfClass("Atmosphere")
+        if atmosphere then
+            for prop, value in pairs(DefaultSettings.Atmosphere) do
+                atmosphere[prop] = value
+            end
+        end
     end
 end
 
@@ -84,6 +118,8 @@ function LightingModule.Configure(settings)
     lighting.ExposureCompensation = settings.ExposureCompensation or lighting.ExposureCompensation
     lighting.GeographicLatitude = settings.GeographicLatitude or lighting.GeographicLatitude
     lighting.TimeOfDay = settings.TimeOfDay or lighting.TimeOfDay
+    lighting.ColorShift_Top = settings.ColorShift_Top or lighting.ColorShift_Top
+    lighting.ColorShift_Bottom = settings.ColorShift_Bottom or lighting.ColorShift_Bottom
 
     -- Configure Atmosphere if provided
     if settings.Atmosphere then
