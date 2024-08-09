@@ -3,10 +3,10 @@ local LightingModule = {}
 
 -- Tables to store default settings for various lighting properties
 local DefaultSettings = {
-    Lighting = {},
-    ColorCorrection = {},
-    Bloom = {},
-    Atmosphere = {}
+    Lighting = nil,
+    ColorCorrection = nil,
+    Bloom = nil,
+    Atmosphere = nil
 }
 
 -- Function to save the current settings based on the provided argument
@@ -14,7 +14,7 @@ function LightingModule.SaveSettings(settingType)
     local lighting = game.Lighting
     
     if settingType == "Lighting" then
-        DefaultSettings.Lighting = {
+        DefaultSettings.Lighting = DefaultSettings.Lighting or {
             Ambient = lighting.Ambient,
             Brightness = lighting.Brightness,
             ClockTime = lighting.ClockTime,
@@ -34,7 +34,7 @@ function LightingModule.SaveSettings(settingType)
     
     elseif settingType == "ColorCorrection" then
         local colorCorrection = lighting:FindFirstChildOfClass("ColorCorrectionEffect")
-        if colorCorrection then
+        if colorCorrection and not DefaultSettings.ColorCorrection then
             DefaultSettings.ColorCorrection = {
                 Brightness = colorCorrection.Brightness,
                 Contrast = colorCorrection.Contrast,
@@ -45,7 +45,7 @@ function LightingModule.SaveSettings(settingType)
     
     elseif settingType == "Bloom" then
         local bloom = lighting:FindFirstChildOfClass("BloomEffect")
-        if bloom then
+        if bloom and not DefaultSettings.Bloom then
             DefaultSettings.Bloom = {
                 Intensity = bloom.Intensity,
                 Size = bloom.Size,
@@ -55,7 +55,7 @@ function LightingModule.SaveSettings(settingType)
     
     elseif settingType == "Atmosphere" then
         local atmosphere = lighting:FindFirstChildOfClass("Atmosphere")
-        if atmosphere then
+        if atmosphere and not DefaultSettings.Atmosphere then
             DefaultSettings.Atmosphere = {
                 Color = atmosphere.Color,
                 Decay = atmosphere.Decay,
@@ -105,31 +105,31 @@ function LightingModule.Configure(settings)
     local lighting = game.Lighting
 
     -- Apply general lighting settings
-    lighting.Ambient = settings.Ambient or lighting.Ambient
-    lighting.Brightness = settings.Brightness or lighting.Brightness
-    lighting.ClockTime = settings.ClockTime or lighting.ClockTime
-    lighting.FogEnd = settings.FogEnd or lighting.FogEnd
-    lighting.FogColor = settings.FogColor or lighting.FogColor
-    lighting.FogStart = settings.FogStart or lighting.FogStart
-    lighting.GlobalShadows = settings.GlobalShadows or lighting.GlobalShadows
-    lighting.OutdoorAmbient = settings.OutdoorAmbient or lighting.OutdoorAmbient
-    lighting.EnvironmentDiffuseScale = settings.EnvironmentDiffuseScale or lighting.EnvironmentDiffuseScale
-    lighting.EnvironmentSpecularScale = settings.EnvironmentSpecularScale or lighting.EnvironmentSpecularScale
-    lighting.ExposureCompensation = settings.ExposureCompensation or lighting.ExposureCompensation
-    lighting.GeographicLatitude = settings.GeographicLatitude or lighting.GeographicLatitude
-    lighting.TimeOfDay = settings.TimeOfDay or lighting.TimeOfDay
-    lighting.ColorShift_Top = settings.ColorShift_Top or lighting.ColorShift_Top
-    lighting.ColorShift_Bottom = settings.ColorShift_Bottom or lighting.ColorShift_Bottom
+    if settings.Ambient then lighting.Ambient = settings.Ambient end
+    if settings.Brightness then lighting.Brightness = settings.Brightness end
+    if settings.ClockTime then lighting.ClockTime = settings.ClockTime end
+    if settings.FogEnd then lighting.FogEnd = settings.FogEnd end
+    if settings.FogColor then lighting.FogColor = settings.FogColor end
+    if settings.FogStart then lighting.FogStart = settings.FogStart end
+    if settings.GlobalShadows then lighting.GlobalShadows = settings.GlobalShadows end
+    if settings.OutdoorAmbient then lighting.OutdoorAmbient = settings.OutdoorAmbient end
+    if settings.EnvironmentDiffuseScale then lighting.EnvironmentDiffuseScale = settings.EnvironmentDiffuseScale end
+    if settings.EnvironmentSpecularScale then lighting.EnvironmentSpecularScale = settings.EnvironmentSpecularScale end
+    if settings.ExposureCompensation then lighting.ExposureCompensation = settings.ExposureCompensation end
+    if settings.GeographicLatitude then lighting.GeographicLatitude = settings.GeographicLatitude end
+    if settings.TimeOfDay then lighting.TimeOfDay = settings.TimeOfDay end
+    if settings.ColorShift_Top then lighting.ColorShift_Top = settings.ColorShift_Top end
+    if settings.ColorShift_Bottom then lighting.ColorShift_Bottom = settings.ColorShift_Bottom end
 
     -- Configure Atmosphere if provided
     if settings.Atmosphere then
         local atmosphere = lighting:FindFirstChildOfClass("Atmosphere")
         if atmosphere then
-            atmosphere.Color = settings.Atmosphere.Color or atmosphere.Color
-            atmosphere.Decay = settings.Atmosphere.Decay or atmosphere.Decay
-            atmosphere.Density = settings.Atmosphere.Density or atmosphere.Density
-            atmosphere.Glare = settings.Atmosphere.Glare or atmosphere.Glare
-            atmosphere.Haze = settings.Atmosphere.Haze or atmosphere.Haze
+            if settings.Atmosphere.Color then atmosphere.Color = settings.Atmosphere.Color end
+            if settings.Atmosphere.Decay then atmosphere.Decay = settings.Atmosphere.Decay end
+            if settings.Atmosphere.Density then atmosphere.Density = settings.Atmosphere.Density end
+            if settings.Atmosphere.Glare then atmosphere.Glare = settings.Atmosphere.Glare end
+            if settings.Atmosphere.Haze then atmosphere.Haze = settings.Atmosphere.Haze end
         end
     end
 
@@ -137,9 +137,9 @@ function LightingModule.Configure(settings)
     if settings.Bloom then
         local bloom = lighting:FindFirstChildOfClass("BloomEffect")
         if bloom then
-            bloom.Intensity = settings.Bloom.Intensity or bloom.Intensity
-            bloom.Size = settings.Bloom.Size or bloom.Size
-            bloom.Threshold = settings.Bloom.Threshold or bloom.Threshold
+            if settings.Bloom.Intensity then bloom.Intensity = settings.Bloom.Intensity end
+            if settings.Bloom.Size then bloom.Size = settings.Bloom.Size end
+            if settings.Bloom.Threshold then bloom.Threshold = settings.Bloom.Threshold end
         end
     end
 
@@ -147,10 +147,10 @@ function LightingModule.Configure(settings)
     if settings.ColorCorrection then
         local colorCorrection = lighting:FindFirstChildOfClass("ColorCorrectionEffect")
         if colorCorrection then
-            colorCorrection.Brightness = settings.ColorCorrection.Brightness or colorCorrection.Brightness
-            colorCorrection.Contrast = settings.ColorCorrection.Contrast or colorCorrection.Contrast
-            colorCorrection.Saturation = settings.ColorCorrection.Saturation or colorCorrection.Saturation
-            colorCorrection.TintColor = settings.ColorCorrection.TintColor or colorCorrection.TintColor
+            if settings.ColorCorrection.Brightness then colorCorrection.Brightness = settings.ColorCorrection.Brightness end
+            if settings.ColorCorrection.Contrast then colorCorrection.Contrast = settings.ColorCorrection.Contrast end
+            if settings.ColorCorrection.Saturation then colorCorrection.Saturation = settings.ColorCorrection.Saturation end
+            if settings.ColorCorrection.TintColor then colorCorrection.TintColor = settings.ColorCorrection.TintColor end
         end
     end
 end
