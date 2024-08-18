@@ -81,7 +81,7 @@ function CustomObject.new(id, name, position, color)
     self._label.Center = true
     self._label.Outline = true
     self._label.Text = name
-    self._label.Font = Drawing.Fonts.UI
+    self._label.Font = 3
     self._label.Size = ESPSettings.fontSize
     self._label.Color = color
 
@@ -151,7 +151,7 @@ do --// Entity ESP
 
         self._triangle = createDrawing('Triangle')
         self._triangle.Visible = true
-        self._triangle.Thickness = 0
+        --self._triangle.Thickness = 0
         self._triangle.Color = Color3.fromRGB(255, 255, 255)
         self._triangle.Filled = true
 
@@ -160,13 +160,13 @@ do --// Entity ESP
         self._label.Center = true
         self._label.Outline = true
         self._label.Text = ''
-        self._label.Font = Drawing.Fonts.UI
+        self._label.Font = 3
         self._label.Size = ESPSettings.fontSize -- Use default font size
         self._label.Color = Color3.fromRGB(255, 255, 255)
 
         self._box = createDrawing('Quad')
         self._box.Visible = false
-        self._box.Thickness = 1
+        --self._box.Thickness = 1
         self._box.Filled = false
         self._box.Color = Color3.fromRGB(255, 255, 255)
 
